@@ -1,0 +1,37 @@
+//steps to implement
+
+// client.c
+// Include necessary headers
+
+int main() {
+    // Implement socket initialization and connection to the server
+
+    // Implement login and menu-based system based on user type (Admin, Faculty, Student)
+
+    // Send requests to the server based on user actions and receive responses
+
+    // Close the socket connection
+
+    return 0;
+}
+__________________________________
+1. Server:
+    • Implement socket programming to handle multiple clients.
+    • Manage files for storing student, faculty, and course information.
+    • Implement functions for adding students, adding faculty, enrolling/unenrolling students in courses, etc.
+    • Implement file locking mechanisms for reading and writing course details.
+2. Client (Admin, Faculty, Student):
+    • Implement socket programming to connect to the server.
+    • Implement login system and menu-based interface for Admin, Faculty, and Student.
+    • Depending on the user type, display the appropriate menu and functionalities.
+    • Send requests to the server for various actions like adding a student, enrolling in a course, etc.
+3. Faculty:
+    • Implement functionalities to add a new course, remove offered courses, view enrollments, and change the password.
+4. Student:
+    • Implement functionalities to enroll/unenroll in/from courses, view enrolled courses, and change the password.
+5. Courses:
+    • Implement functionalities to manage course details, including limited seats.
+____________________________________________________________________________________________
+
+
+
