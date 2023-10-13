@@ -1,5 +1,5 @@
 /*
-* Name : 24.c
+* Name : 25.c
 * Author : Aman Pandey
 * Description : Write a program to print a message queue's (use `msqid_ds` and `ipc_perm` structures)
 * Date: 10th Aug, 2023
