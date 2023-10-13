@@ -3,17 +3,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
-
-#define MAX_NAME_LENGTH 50
-#define MAX_LINE_LENGTH 256
-#define MAX_FILE_NAME_LENGTH 100
-
-typedef struct {
-    char name[MAX_NAME_LENGTH];
-    int age;
-    char id[MAX_NAME_LENGTH];
-    int status;  // 0 for deactivated, 1 for active
-} Student;
+#include "student.h"
 
 // Structure to hold faculty information
 typedef struct {
@@ -49,6 +39,7 @@ void add_student() {
     printf("Enter student ID: ");
     scanf("%s", new_student.id);
     new_student.status = 1;
+    new_student.count = 0;
     // Open the file in append mode
     FILE *file = fopen("files/student", "a");
     if (file == NULL) {
@@ -57,8 +48,9 @@ void add_student() {
     }
 
     // Append student details to the file
-    fprintf(file, "Name: %s, Age: %d, ID: %s, Status: %d\n", 
-        new_student.name, new_student.age, new_student.id, new_student.status);
+    fprintf(file, "Name: %s, Age: %d, ID: %s, enrolled_courses: %d, Status: %d\n", 
+        new_student.name, new_student.age, new_student.id, new_student.count, 
+        new_student.status);
     // Close the file
     fclose(file);
 
@@ -146,16 +138,30 @@ void activate_deactivate_student() {
     fclose(file);
 }
 
-void replaceSubstringAt(char *string, char *index, char replace[]) {
+
+void replaceSubstring(char *string, char search[], char replace[]) {
+    int searchLen = strlen(search);
     int replaceLen = strlen(replace);
-    int stringLen = strlen(string);
-    int offset = index - string;
+    char *pos = string;
 
-    // Shift the rest of the string to accommodate the new substring
-    memmove(index + replaceLen, index + strlen(replace), stringLen - offset - strlen(replace) + 1);
+    while ((pos = strstr(pos, search)) != NULL) {
+        // If replace length is different from search length, adjust string length accordingly
+        int lengthDiff = replaceLen - searchLen;
 
-    // Replace the substring
-    strncpy(index, replace, replaceLen);
+        if (lengthDiff > 0) {
+            // Shift the rest of the string to accommodate the new substring
+            memmove(pos + replaceLen, pos + searchLen, strlen(pos + searchLen) + 1);
+        } else if (lengthDiff < 0) {
+            // Shift the rest of the string to make space for the new substring
+            memmove(pos + replaceLen, pos + searchLen, strlen(pos + searchLen) + -lengthDiff + 1);
+        }
+
+        // Replace the substring
+        strncpy(pos, replace, replaceLen);
+
+        // Move to the next position
+        pos += replaceLen;
+    }
 }
 
 void update_student_faculty_details() {
@@ -163,15 +169,10 @@ void update_student_faculty_details() {
     printf("For student, enter [s], and for faculty, enter [f]: \n");
     scanf(" %c", &type);  // Added a space before %c to consume the newline character
 
-    if (type == 's') {
+    if (type == 's' || type == 'S') {
+        printf("Enter the ID of student you want to update: \n");
         char student_id[MAX_NAME_LENGTH];
-        char new_id[MAX_NAME_LENGTH];
-
-        printf("Enter the ID of student you want to update: ");
         scanf("%s", student_id);
-
-        printf("Enter the new ID: ");
-        scanf("%s", new_id);
 
         FILE *file = fopen("files/student", "r+");
         if (file == NULL) {
@@ -182,27 +183,70 @@ void update_student_faculty_details() {
         char line[MAX_LINE_LENGTH];
         int found = 0;  // Flag to indicate if the student was found
 
+        // Read each line in the file and update the status for the given student
         while (fgets(line, sizeof(line), file) != NULL) {
-            char *id_position = strstr(line, student_id);
-            if (id_position != NULL) {
+            char *id = strstr(line, student_id);
+            printf("id is: %s\n", id);
+            if (id != NULL) {
                 found = 1;
-
-                // Move the file pointer to the ID position and update it
-                fseek(file, id_position - line, SEEK_CUR);
-                fprintf(file, "ID: %s", new_id);
-
+                char new_id[MAX_NAME_LENGTH];
+                printf("Enter new id number: \n");
+                scanf("%s", new_id);
+                replaceSubstring(id, student_id, new_id);
                 break;
             }
         }
 
+        // If student is found, update the file
         if (found) {
-            printf("Student ID updated in student.txt\n");
+            fseek(file, -strlen(line), SEEK_CUR); 
+            fprintf(file, "%s", line);
+            printf("Student status updated in student.txt\n");
         } else {
             printf("Student with ID %s not found.\n", student_id);
         }
 
         fclose(file);
-}else {
-        printf("Faculty changes\n");
+    }else if(type == 'f' || type == 'F'){
+        printf("Enter the ID of faculty you want to update: \n");
+        char faculty_id[MAX_NAME_LENGTH];
+        scanf("%s", faculty_id);
+
+        FILE *file = fopen("files/faculty", "r+");
+        if (file == NULL) {
+            perror("Error opening file");
+            return;
+        }
+
+        char line[MAX_LINE_LENGTH];
+        int found = 0;  // Flag to indicate if the faculty was found
+
+        // Read each line in the file and update the status for the given faculty
+        while (fgets(line, sizeof(line), file) != NULL) {
+            char *id = strstr(line, faculty_id);
+            printf("id is: %s\n", id);
+            if (id != NULL) {
+                found = 1;
+                char new_id[MAX_NAME_LENGTH];
+                printf("Enter new id number: \n");
+                scanf("%s", new_id);
+                replaceSubstring(id, faculty_id, new_id);
+                break;
+            }
+        }
+
+        // If faculty is found, update the file
+        if (found) {
+            fseek(file, -strlen(line), SEEK_CUR); 
+            fprintf(file, "%s", line);
+            printf("Faculty status updated in faculty.txt\n");
+        } else {
+            printf("faculty with ID %s not found.\n", faculty_id);
+        }
+
+        fclose(file);
+    }else{
+        printf("Invalid: \n");
+        return;
     }
 }

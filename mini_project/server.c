@@ -207,7 +207,7 @@ void handle_student(int client_socket) {
                 view_enrolled_courses();
                 break;
             case 4:
-                password_change();
+                change_password();
                 break;
             case 5:
                 printf("Exiting...\n");

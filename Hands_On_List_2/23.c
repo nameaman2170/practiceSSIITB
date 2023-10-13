@@ -2,7 +2,7 @@
 * Name : 23.c
 * Author : Aman Pandey
 * Description : Write a program to print the maximum number of files can be opened within a process and size of a pipe (circular buffer).
-* Date: 9th Aug, 2023
+* Date: 10th Aug, 2023
 */
 
 #include <stdio.h>
